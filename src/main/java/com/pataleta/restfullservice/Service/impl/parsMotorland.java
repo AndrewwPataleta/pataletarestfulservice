@@ -1,17 +1,18 @@
 package com.pataleta.restfullservice.Service.impl;
 
-import com.pataleta.restfullservice.model.Sparepart;
+import com.pataleta.restfullservice.model.SparepartEntity;
+import com.pataleta.restfullservice.utils.HibernateSessionFactory;
+import org.hibernate.Session;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashSet;
 
 public class parsMotorland {
 
-    private HashSet<Sparepart> listOfSparepart;
+    private HashSet<SparepartEntity> listOfSparepart;
     private int pageCountInt = 1;
     private int currentPage = 1;
     private String search;
@@ -23,12 +24,11 @@ public class parsMotorland {
             Document motorlandWebDoc = Jsoup.connect("http://motorland.by/auto-parts/?Filter.TextSearch=" + search + "&pg=" + currentPage + " ").timeout(5000).get();
             Elements itemsOnPage = motorlandWebDoc.select("div.cont").select("table.grid.partgrid").select("tbody").select("tr");
             for (Element sparePartElem : itemsOnPage) {
-                Sparepart sparepart = new Sparepart();
-                sparepart.setPrice(sparePartElem.select("td.tright.price").select("div").text().replace("р.", ""));
+                SparepartEntity sparepart = new SparepartEntity();
+//                sparepart.setPrice(Float.valueOf(sparePartElem.select("td.tright.price").select("div").text().replace("р.", "")));
                 sparepart.setNameSparepart(sparePartElem.getElementsByAttributeValue("data-title", "Название запчасти").text());
                 sparepart.setVendorCode(sparePartElem.getElementsByAttributeValue("data-title", "Артикул").text());
-                sparepart.setModelAuto(sparePartElem.getElementsByAttributeValue("data-title", "Модель").text());
-                sparepart.setBrandAuto(sparePartElem.getElementsByAttributeValue("data-title", "Марка").text());
+                sparepart.setProducer(sparePartElem.getElementsByAttributeValue("data-title", "Марка").text());
                 sparepart.setCharacteristics(sparePartElem.getElementsByAttributeValue("data-title", "Характеристики").text());
                 sparepart.setPhone(sparePartElem.select("td").select("div.popup-bl").select("div.viki-popup").text().trim());
                 listOfSparepart.add(sparepart);
@@ -38,7 +38,7 @@ public class parsMotorland {
         }
     }
 
-    public HashSet<Sparepart> getList(String searchString) throws IOException {
+    public HashSet<SparepartEntity> getList(String searchString) throws IOException {
         search = searchString;
         System.out.println(" поиск в классе: "+search);
         Document doc = Jsoup.connect("http://motorland.by/auto-parts/?Filter.TextSearch="+search+" ").timeout(5000).get();
@@ -57,4 +57,14 @@ public class parsMotorland {
             return listOfSparepart;
         }
     }
+
+    public void saveModel(){
+        Session session = HibernateSessionFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+       SparepartEntity qwe = new SparepartEntity();
+       session.save(qwe);
+        session.getTransaction().commit();
+        session.close();
+    }
+
 }
