@@ -23,6 +23,7 @@ public class SparepartEntity {
     @Id
     @Column(name = "idSparepart")
     @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @JsonIgnore
     public int getIdSparepart() {
         return idSparepart;
     }
@@ -40,7 +41,6 @@ public class SparepartEntity {
     public void setVendorCode(String vendorCode) {
         this.vendorCode = vendorCode;
     }
-
 
     @Basic
     @Column(name = "nameSparepart")

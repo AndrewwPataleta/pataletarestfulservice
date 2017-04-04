@@ -3,11 +3,15 @@ package com.pataleta.restfullservice.Service.impl;
 import com.pataleta.restfullservice.model.SparepartEntity;
 import com.pataleta.restfullservice.utils.HibernateSessionFactory;
 import org.hibernate.Session;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashSet;
 
 public class parsMotorland {
@@ -57,6 +61,17 @@ public class parsMotorland {
             return listOfSparepart;
         }
     }
+
+//   public static int countRequestTodayByUser(String idUser){
+//       Session session = HibernateSessionFactory.getSessionFactory().openSession();
+//       session.beginTransaction();
+//       Object result = session.getSession().createCriteria(UserRequestsEntity.class)
+//               .add(Restrictions.eq("loginIdUser",idUser))
+//               .add(Restrictions.eq("dateRequest",new Date()))
+//                    .setProjection(Projections.rowCount()).uniqueResult();
+//       System.out.println(" Кол-во: "+Integer.valueOf(result.toString()));
+//       return Integer.valueOf(result.toString());
+//   }
 
     public void saveModel(){
         Session session = HibernateSessionFactory.getSessionFactory().openSession();

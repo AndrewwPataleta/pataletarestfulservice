@@ -3,7 +3,6 @@ package com.pataleta.restfullservice.controller;
 import java.io.IOException;
 import java.util.HashSet;
 
-import com.pataleta.restfullservice.model.RequestsEntity;
 import com.pataleta.restfullservice.model.SparepartEntity;
 import com.pataleta.restfullservice.utils.HibernateSessionFactory;
 import org.hibernate.Session;
@@ -13,33 +12,57 @@ import com.pataleta.restfullservice.Service.impl.*;
 @RestController
 class ControllerByDesc {
 
-//    @RequestParam(value="name", required=false, defaultValue="World") String name
+    HashSet<SparepartEntity> sparepartHashSet = null;
 
-    @RequestMapping(value = "/parts/{search}/{test}")
-    public HashSet<SparepartEntity> getSparepartsByDesc(@PathVariable("search") String search, @PathVariable("test") String test) {
+    private String idUser;
 
-        System.out.println("test: "+test);
-        System.out.println(" запрос: "+search);
+    private void saveResults(){
+        Session session = HibernateSessionFactory.getSessionFactory().openSession();
+        session.beginTransaction();
+        for (SparepartEntity sparepartEntity:sparepartHashSet) {
+            System.out.println("id: "+sparepartEntity.getIdSparepart());
+            session.save(sparepartEntity);
+        }
+        session.getTransaction().commit();
+        session.close();
+    }
 
+//    private boolean mayDoRequest(){
+//        int countRequestByUser = parsMotorland.countRequestTodayByUser(idUser);
+//        return countRequestByUser < 5 ?  true :  false;
+//    }
+
+    private void initMainListSpareparts(String search) throws IllegalAccessException, InstantiationException, IOException {
         parsMotorland motorland = new parsMotorland();
-        HashSet<SparepartEntity> sparepartHashSet = null;
-        try {
-             sparepartHashSet = motorland.getList(search);
-//           sparepartHashSet = parsExistBy.class.newInstance().getListOfPartsByCode("16400-9F910");
-        } catch ( IOException e) {
-            e.printStackTrace();
-        }
-        finally {
-            Session session = HibernateSessionFactory.getSessionFactory().openSession();
-            session.beginTransaction();
-            for (SparepartEntity sparepartEntity:sparepartHashSet) {
-                System.out.println("id: "+sparepartEntity.getIdSparepart());
-                session.save(sparepartEntity);
-            }
-            session.getTransaction().commit();
-            session.close();
-                System.out.println(" отдал ");
-                return sparepartHashSet;
-        }
+        sparepartHashSet = motorland.getList(search);
+        sparepartHashSet = parsExistBy.class.newInstance().getListOfPartsByCode("16400-9F910");
+    }
+
+    @RequestMapping(value = "{idUser}/parts/{search}/{test}")   
+    public HashSet<SparepartEntity> getSparepartsByDesc(@PathVariable("search") String search, @PathVariable("test") String test,@PathVariable("idUser") String idUser) {
+        System.out.println(" Номер: "+idUser);
+        this.idUser = idUser;
+
+
+
+//        UserRequestsEntity zxc = new UserRequestsEntity();
+//        UserEntity user = new UserEntity();
+//        user.setLoginIdUser("312");
+//        zxc.setUserEntity(user);
+//        Session session = HibernateSessionFactory.getSessionFactory().openSession();
+//        session.beginTransaction();
+//        session.save(zxc);
+//        session.getTransaction().commit();
+//        session.close();
+
+//        if(!mayDoRequest())
+//        {
+//            System.out.println(" Лимит запросов превышен");
+//            return null;
+//        }
+
+        System.out.println(" окей ");
+
+        return sparepartHashSet;
     }
 }
