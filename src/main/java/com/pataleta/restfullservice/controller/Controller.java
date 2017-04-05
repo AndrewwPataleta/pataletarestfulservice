@@ -4,46 +4,71 @@ import java.io.IOException;
 import java.util.HashSet;
 
 import com.pataleta.restfullservice.model.SparepartEntity;
-import com.pataleta.restfullservice.utils.HibernateSessionFactory;
-import org.hibernate.Session;
 import org.springframework.web.bind.annotation.*;
 import com.pataleta.restfullservice.Service.impl.*;
 
 @RestController
-class ControllerByDesc {
+@RequestMapping(value = "{idUser}/parts")
+class PartsController {
 
-    HashSet<SparepartEntity> sparepartHashSet = null;
-
+    private HashSet<SparepartEntity> sparepartHashSetByText;
+    private HashSet<SparepartEntity> sparepartHashSetByArticle;
     private String idUser;
+    private parsMotorland motorland;
+    private parsExistBy existBy;
+    private  parsMlAuto mlAuto;
 
-    private void saveResults(){
-        Session session = HibernateSessionFactory.getSessionFactory().openSession();
-        session.beginTransaction();
-        for (SparepartEntity sparepartEntity:sparepartHashSet) {
-            System.out.println("id: "+sparepartEntity.getIdSparepart());
-            session.save(sparepartEntity);
-        }
-        session.getTransaction().commit();
-        session.close();
-    }
+//    private void saveResults(){
+//        Session session = HibernateSessionFactory.getSessionFactory().openSession();
+//        session.beginTransaction();
+//        for (SparepartEntity sparepartEntity: sparepartHashSetByText) {
+//            System.out.println("id: "+sparepartEntity.getIdSparepart());
+//            session.save(sparepartEntity);
+//        }
+//        session.getTransaction().commit();
+//        session.close();
+//    }
 
 //    private boolean mayDoRequest(){
 //        int countRequestByUser = parsMotorland.countRequestTodayByUser(idUser);
 //        return countRequestByUser < 5 ?  true :  false;
 //    }
 
-    private void initMainListSpareparts(String search) throws IllegalAccessException, InstantiationException, IOException {
-        parsMotorland motorland = new parsMotorland();
-        sparepartHashSet = motorland.getList(search);
-        sparepartHashSet = parsExistBy.class.newInstance().getListOfPartsByCode("16400-9F910");
+//        sparepartHashSetByText.addAll(parsExistBy.class.newInstance().getListOfPartsByCode("16400-9F910"));
+
+    private void initListSparepartsByArticle(String article) throws IOException {
+        motorland = new parsMotorland();
+        mlAuto = new parsMlAuto();
+         existBy = new parsExistBy();
+        sparepartHashSetByArticle.addAll(existBy.getListByArticle(article));
+        sparepartHashSetByArticle.addAll(motorland.getListByArticle(article));
+        sparepartHashSetByArticle.addAll(mlAuto.getListByArticle(article));
     }
 
-    @RequestMapping(value = "{idUser}/parts/{search}/{test}")   
-    public HashSet<SparepartEntity> getSparepartsByDesc(@PathVariable("search") String search, @PathVariable("test") String test,@PathVariable("idUser") String idUser) {
-        System.out.println(" Номер: "+idUser);
-        this.idUser = idUser;
+    private void initListSparepartsByText(String search) throws IllegalAccessException, InstantiationException, IOException {
+//        if(motorland.getListByTextSearch(search) != null)
+            sparepartHashSetByText = motorland.getListByTextSearch(search);
+    }
 
+    @RequestMapping(value = "/article/{search}")
+    public HashSet<SparepartEntity> getSparepartsByArticle(@PathVariable("search") String search, @PathVariable("idUser") String idUser){
+      try {
+          sparepartHashSetByArticle = new HashSet<>();
+          initListSparepartsByArticle(search);
 
+      } catch (IOException e){e.printStackTrace();}
+      return sparepartHashSetByArticle;
+    }
+
+    @RequestMapping(value = "/text/{search}")
+    public HashSet<SparepartEntity> getSparepartsByText(@PathVariable("search") String search, @PathVariable("idUser") String idUser) {
+        try {
+            motorland = new parsMotorland();
+            sparepartHashSetByText = new HashSet<>();
+            initListSparepartsByText(search);
+        } catch (IllegalAccessException | IOException | InstantiationException e) {
+            e.printStackTrace();
+        }
 
 //        UserRequestsEntity zxc = new UserRequestsEntity();
 //        UserEntity user = new UserEntity();
@@ -60,9 +85,6 @@ class ControllerByDesc {
 //            System.out.println(" Лимит запросов превышен");
 //            return null;
 //        }
-
-        System.out.println(" окей ");
-
-        return sparepartHashSet;
+        return sparepartHashSetByText;
     }
 }
