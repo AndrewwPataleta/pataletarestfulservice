@@ -3,6 +3,7 @@ package com.pataleta.restfullservice.controller;
 import java.io.IOException;
 import java.util.HashSet;
 
+import com.pataleta.restfullservice.Service.parsWeb;
 import com.pataleta.restfullservice.model.SparepartEntity;
 import org.springframework.web.bind.annotation.*;
 import com.pataleta.restfullservice.Service.impl.*;
@@ -16,7 +17,7 @@ class PartsController {
     private String idUser;
     private parsMotorland motorland;
     private parsExistBy existBy;
-    private  parsMlAuto mlAuto;
+    private parsStopBy mlAuto;
 
 //    private void saveResults(){
 //        Session session = HibernateSessionFactory.getSessionFactory().openSession();
@@ -33,21 +34,29 @@ class PartsController {
 //        int countRequestByUser = parsMotorland.countRequestTodayByUser(idUser);
 //        return countRequestByUser < 5 ?  true :  false;
 //    }
-
 //        sparepartHashSetByText.addAll(parsExistBy.class.newInstance().getListOfPartsByCode("16400-9F910"));
 
     private void initListSparepartsByArticle(String article) throws IOException {
-        motorland = new parsMotorland();
-        mlAuto = new parsMlAuto();
-         existBy = new parsExistBy();
-        sparepartHashSetByArticle.addAll(existBy.getListByArticle(article));
-        sparepartHashSetByArticle.addAll(motorland.getListByArticle(article));
+//         existBy = new parsExistBy();
+//        motorland = new parsMotorland();
+
+        mlAuto = new parsStopBy();
+//        sparepartHashSetByArticle.addAll(existBy.getListByArticle(article));
+//        sparepartHashSetByArticle.addAll(motorland.getListByArticle(article));
         sparepartHashSetByArticle.addAll(mlAuto.getListByArticle(article));
     }
 
-    private void initListSparepartsByText(String search) throws IllegalAccessException, InstantiationException, IOException {
+    private void initListSparepartsByText(String search) throws IllegalAccessException, InstantiationException, IOException, ClassNotFoundException {
 //        if(motorland.getListByTextSearch(search) != null)
             sparepartHashSetByText = motorland.getListByTextSearch(search);
+
+    }
+
+
+    @RequestMapping(value = "/article/{search}/{brand}")
+    public HashSet<SparepartEntity> getSparepartsByArticle(@PathVariable("search") String search, @PathVariable("idUser") String idUser,@PathVariable("brand") String brandArticle){
+       System.out.println(brandArticle);
+        return sparepartHashSetByArticle;
     }
 
     @RequestMapping(value = "/article/{search}")
@@ -66,7 +75,7 @@ class PartsController {
             motorland = new parsMotorland();
             sparepartHashSetByText = new HashSet<>();
             initListSparepartsByText(search);
-        } catch (IllegalAccessException | IOException | InstantiationException e) {
+        } catch (IllegalAccessException | IOException | InstantiationException | ClassNotFoundException e) {
             e.printStackTrace();
         }
 
