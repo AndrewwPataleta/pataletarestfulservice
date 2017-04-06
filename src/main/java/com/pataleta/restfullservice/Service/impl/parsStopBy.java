@@ -22,7 +22,6 @@ public class parsStopBy implements parsWeb {
     }
 
     private void initListByHref(String urlForSearch) throws IOException {
-        System.out.println(" href: "+urlForSearch);
         try {
             Document mlAutoDocument = Jsoup.connect(basicUrl + urlForSearch).timeout(5000).get();
             Element mainTable = mlAutoDocument.getElementById("ajax_analogs");
@@ -31,14 +30,17 @@ public class parsStopBy implements parsWeb {
                 SparepartEntity item = new SparepartEntity();
                 try {
                     item.setPrice(Float.valueOf(singleItem.getElementsByAttributeValue("itemprop", "price").text()));
+                    if(singleItem.select("a.fancybox-small.droppeda").text().trim().equals(""))
+                         continue;
                     item.setProducer(singleItem.select("a.fancybox-small.droppeda").text());
-                    item.setCharacteristics(singleItem.select("td").select("a").text());
+                    item.setNameSparepart(singleItem.select("td").select("a").text());
                     item.setDaysOfDelivery(singleItem.select("td.g-delivery.smallprice.cell.t-center").text());
                     item.setQuantity(singleItem.select("td.g-box.cell").text());
                     item.setVendorCode(singleItem.select("td.g-article.cell").text());
                     listOfParts.add(item);
+
                 } catch (Exception e) {
-                    System.out.println(" без цены ");
+//                    System.out.println(" без цены ");
                 }
             }
         }catch (Exception e){
@@ -65,6 +67,9 @@ public class parsStopBy implements parsWeb {
             catch (NullPointerException e){
                 System.out.println(" Ничего не найдено ");
             }
+        for (SparepartEntity item: listOfParts) {
+            System.out.println(item);
+        }
         return listOfParts;
     }
 
