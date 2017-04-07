@@ -14,6 +14,8 @@ public interface parsWeb {
 
      HashSet<SparepartEntity> getListByArticle(String article) throws IOException ;
 
+     HashSet<SparepartEntity> getListByArticle(String article, String brand) throws IOException ;
+
      HashSet<SparepartEntity> getListByCode(String code) throws IOException;
 
 }

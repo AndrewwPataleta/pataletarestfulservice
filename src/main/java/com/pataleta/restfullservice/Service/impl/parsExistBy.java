@@ -7,10 +7,13 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.HashSet;
 
+
+@Service
 public class parsExistBy implements parsWeb {
 
     private HashSet<SparepartEntity> listOfPartsByArticle;
@@ -44,6 +47,11 @@ public class parsExistBy implements parsWeb {
             }
         }
         return listOfPartsByArticle;
+    }
+
+    @Override
+    public HashSet<SparepartEntity> getListByArticle(String article, String brand) throws IOException {
+        return null;
     }
 
     @Override

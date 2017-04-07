@@ -85,6 +85,11 @@ public class parsMotorland implements parsWeb {
         return listOfSparepart;
     }
 
+    @Override
+    public HashSet<SparepartEntity> getListByArticle(String article, String brand) throws IOException {
+        return null;
+    }
+
 
     @Override
     public HashSet<SparepartEntity> getListByCode(String code) throws IOException {

@@ -16,8 +16,8 @@ public class SparepartEntity {
     private String daysOfDelivery;
     private String quantity;
     private String producer;
-    private double price;
-    private String characteristics;
+    private float price;
+    private String characteristics = "Нет описания";
     private String phone;
 
     @Id
@@ -84,11 +84,11 @@ public class SparepartEntity {
 
     @Basic
     @Column(name = "price")
-    public double getPrice() {
+    public float getPrice() {
         return price;
     }
 
-    public void setPrice(double price) {
+    public void setPrice(float price) {
         this.price = price;
     }
 
