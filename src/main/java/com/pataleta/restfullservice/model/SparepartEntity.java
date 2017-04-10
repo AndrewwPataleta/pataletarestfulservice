@@ -12,13 +12,22 @@ public class SparepartEntity {
 
     private int idSparepart;
     private String vendorCode;
-    private String nameSparepart;
-    private String daysOfDelivery;
-    private String quantity;
     private String producer;
-    private float price;
+    private String nameSparepart;
     private String characteristics = "Нет описания";
+    private float price;
+    private String quantity;
+    private String daysOfDelivery;
     private String phone;
+    private String resources = "Unknown";
+
+    public String getResources() {
+        return resources;
+    }
+
+    public void setResources(String resources) {
+        this.resources = resources;
+    }
 
     @Id
     @Column(name = "idSparepart")
@@ -136,7 +145,7 @@ public class SparepartEntity {
     }
 
     public String toString(){
-        return "Запчасть: "+nameSparepart+ ", производитель: "+producer+" характеристики: "+characteristics+" цена: "+price;
+        return "Запчасть: "+nameSparepart+ ", производитель: "+producer+" характеристики: "+characteristics+" цена: "+price+" ресурс: "+resources;
     }
 
     @Override

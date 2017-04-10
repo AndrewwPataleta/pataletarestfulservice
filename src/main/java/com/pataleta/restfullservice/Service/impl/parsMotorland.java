@@ -10,6 +10,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Properties;
+import java.util.Set;
 
 public class parsMotorland implements parsWeb {
 
@@ -38,6 +39,7 @@ public class parsMotorland implements parsWeb {
                 sparepart.setProducer(sparePartElem.getElementsByAttributeValue("data-title", "Марка").text());
                 sparepart.setCharacteristics(sparePartElem.getElementsByAttributeValue("data-title", "Характеристики").text());
                 sparepart.setPhone(sparePartElem.select("td").select("div.popup-bl").select("div.viki-popup").text().trim());
+                sparepart.setResources("motorland.by");
                 listOfSparepart.add(sparepart);
             }catch (Exception e){
                 e.printStackTrace();
@@ -90,11 +92,25 @@ public class parsMotorland implements parsWeb {
         return null;
     }
 
+    @Override
+    public Set<String> getListOfBrands(String article) {
+        return new HashSet<>();
+    }
+
 
     @Override
     public HashSet<SparepartEntity> getListByCode(String code) throws IOException {
-
         return new HashSet<>();
+    }
+
+    @Override
+    public HashSet<SparepartEntity> getListByArticleWithAnalogs(String article) throws IOException {
+        return new HashSet<>();
+    }
+
+    @Override
+    public HashSet<SparepartEntity> getListByArticleWithAnalogs(String article, String brand) throws IOException {
+        return null;
     }
 
 //   public static int countRequestTodayByUser(String idUser){

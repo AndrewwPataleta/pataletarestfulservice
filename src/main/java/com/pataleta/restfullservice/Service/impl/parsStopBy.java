@@ -11,6 +11,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.net.SocketTimeoutException;
 import java.util.HashSet;
+import java.util.Set;
 
 public class parsStopBy implements parsWeb {
 
@@ -76,10 +77,11 @@ public class parsStopBy implements parsWeb {
                     item.setQuantity(singleItem.select("td.g-box.cell").text());
                     item.setVendorCode(singleItem.select("td.g-article.cell").text());
                     item.setPhone(phone);
+                    item.setResources("stopby.by");
                     listOfParts.add(item);
 
                 } catch (Exception e) {
-                    System.out.println(" initList свалился ");
+                    System.out.println(" parsstop initList свалился ");
                 }
             }
         }catch (Exception e){
@@ -122,6 +124,7 @@ public class parsStopBy implements parsWeb {
         return listOfParts;
     }
 
+    @Override
     public HashSet<SparepartEntity> getListByArticleWithAnalogs(String article) throws IOException {
         try {
             Elements itemsInTable = getEveryoneBrandByArticle(article);
@@ -167,6 +170,12 @@ public class parsStopBy implements parsWeb {
         return listOfParts;
     }
 
+    @Override
+    public Set<String> getListOfBrands(String article) {
+        return new HashSet<>();
+    }
+
+    @Override
     public HashSet<SparepartEntity> getListByArticleWithAnalogs(String article, String brand) throws IOException {
         try {
             Elements brands = getEveryoneBrandByArticle(article);

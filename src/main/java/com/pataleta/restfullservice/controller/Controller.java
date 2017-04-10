@@ -1,23 +1,40 @@
 package com.pataleta.restfullservice.controller;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Scanner;
+import java.util.Set;
 
 import com.pataleta.restfullservice.Service.parsWeb;
 import com.pataleta.restfullservice.model.SparepartEntity;
 import org.springframework.web.bind.annotation.*;
-import com.pataleta.restfullservice.Service.impl.*;
 
 @RestController
 @RequestMapping(value = "{idUser}/parts")
 class PartsController {
 
-    private HashSet<SparepartEntity> sparepartHashSetByText;
-    private HashSet<SparepartEntity> sparepartHashSetByArticle;
-    private String idUser;
-    private parsMotorland motorland;
-    private parsExistBy existBy;
-    private parsStopBy mlAuto;
+    private HashSet<SparepartEntity> sparepartHashSet;
+    private ArrayList<parsWeb> javaClasses;
+    private Set<String> listOfBrands = new HashSet<>();
+
+
+    public PartsController()  {
+        javaClasses = new ArrayList<>();
+        try {
+            Scanner in = new Scanner(new File("/home/andrew/programs/pataletarestfulservice/src/main/resources/public/files/classesForPars"));
+            while (in.hasNext()) {
+                Object object = Class.forName("com.pataleta.restfullservice.Service.impl." + in.next() + "").newInstance();
+                parsWeb web = (parsWeb) object;
+                javaClasses.add(web);
+            }
+        } catch (IllegalAccessException | InstantiationException | FileNotFoundException | ClassNotFoundException e) {
+            System.out.println(" PartsController: "+e.toString());
+        }
+    }
+
 
 //    private void saveResults(){
 //        Session session = HibernateSessionFactory.getSessionFactory().openSession();
@@ -36,82 +53,110 @@ class PartsController {
 //    }
 //        sparepartHashSetByText.addAll(parsExistBy.class.newInstance().getListOfPartsByCode("16400-9F910"));
 
-    private void initListSparepartsByArticleAndBrandWithoutAnalogs(String article,String brand) throws IOException {
-        mlAuto = new parsStopBy();
-        sparepartHashSetByArticle.addAll(mlAuto.getListByArticle(article,brand));
+    private void initListSparepartsByArticleAndBrandWithoutAnalogs(String article,String brand)  {
+        for (parsWeb javaClass:javaClasses) {
+            try {
+                sparepartHashSet.addAll(javaClass.getListByArticle(article, brand));
+            }catch (IOException e){
+                System.out.println(" initListSparepartsByArticleAndBrandWithoutAnalogs "+e.toString());
+            }
+        }
     }
 
-    private void initListSparepartsByArticleWithBrandAnalogs(String article,String brand) throws IOException {
-        mlAuto = new parsStopBy();
-        sparepartHashSetByArticle.addAll(mlAuto.getListByArticleWithAnalogs(article,brand));
+    private void initListOfBrands(String article){
+        for (parsWeb javaClass:javaClasses) {
+                listOfBrands.addAll(javaClass.getListOfBrands(article));
+        }
     }
 
-    private void initListSparepartsByArticleAnalogs(String article) throws IOException {
-        mlAuto = new parsStopBy();
-        sparepartHashSetByArticle.addAll(mlAuto.getListByArticleWithAnalogs(article));
+    private void initListSparepartsByArticleWithBrandAnalogs(String article,String brand)  {
+        for (parsWeb javaClass:javaClasses) {
+            try {
+                sparepartHashSet.addAll(javaClass.getListByArticleWithAnalogs(article, brand));
+            }catch (IOException e){
+                System.out.print("initListSparepartsByArticleWithBrandAnalogs "+e.toString());
+            }
+        }
     }
 
-    private void initListSparepartsByArticle(String article) throws IOException {
-        mlAuto = new parsStopBy();
-        sparepartHashSetByArticle.addAll(mlAuto.getListByArticle(article));
+    private void initListSparepartsByArticleAnalogs(String article) {
+        for (parsWeb javaClass:javaClasses) {
+            try {
+                sparepartHashSet.addAll(javaClass.getListByArticleWithAnalogs(article));
+            }catch (IOException e){
+                System.out.println("initListSparepartsByArticleAnalogs "+e.toString());
+            }
+        }
     }
 
-    private void initListSparepartsByText(String search) throws IllegalAccessException, InstantiationException, IOException {
-//        if(motorland.getListByTextSearch(search) != null)
-            sparepartHashSetByText = motorland.getListByTextSearch(search);
+    private void initListSparepartsByArticle(String article) {
+        for (parsWeb javaClass:javaClasses) {
+            try {
+            sparepartHashSet.addAll(javaClass.getListByArticle(article));}
+            catch (IOException e){
+                System.out.println(e.toString());
+            }
+        }
+    }
+
+    private void initListSparepartsByText(String search)  {
+        for (parsWeb javaClass:javaClasses) {
+            try {
+                sparepartHashSet.addAll(javaClass.getListByTextSearch(search));
+            }catch (IOException e){
+                System.out.println(e.toString());
+            }
+        }
+    }
+
+
+    @RequestMapping(value = "/brands/{article}")
+    public Set<String> getListOfBrands(@PathVariable("article") String article, @PathVariable("idUser") String idUser){
+        initListOfBrands(article);
+        System.out.println(listOfBrands.size());
+        return listOfBrands;
     }
 
     @RequestMapping(value = "/article/{search}/{brand}")
     public HashSet<SparepartEntity> getSparepartsByArticleAndBrandWithoutAnalogs(@PathVariable("search") String search, @PathVariable("idUser") String idUser,@PathVariable("brand") String brandArticle){
         try {
-            sparepartHashSetByArticle = new HashSet<>();
+            sparepartHashSet = new HashSet<>();
             initListSparepartsByArticleAndBrandWithoutAnalogs(search,brandArticle);
         }catch (Exception e){
             e.printStackTrace();
         }
-        return sparepartHashSetByArticle;
+        return sparepartHashSet;
     }
 
     @RequestMapping(value = "/article/{search}/analogs/{brand}")
     public HashSet<SparepartEntity> getSparepartsByArticleAndBrandWithAnalogs(@PathVariable("search") String search, @PathVariable("idUser") String idUser,@PathVariable("brand") String brandArticle){
         try {
-            sparepartHashSetByArticle = new HashSet<>();
+            sparepartHashSet = new HashSet<>();
             initListSparepartsByArticleAndBrandWithoutAnalogs(search,brandArticle);
         }catch (Exception e){
             e.printStackTrace();
         }
-        return sparepartHashSetByArticle;
+        return sparepartHashSet;
     }
 
     @RequestMapping(value = "/article/{search}", method = RequestMethod.GET)
-    public HashSet<SparepartEntity> getSparepartsByArticleWithoutAnalogs(@PathVariable("search") String search, @PathVariable("idUser") String idUser){
-        try {
-            sparepartHashSetByArticle = new HashSet<>();
+    public HashSet<SparepartEntity> getSparepartsByArticleWithoutAnalogs(@PathVariable("search") String search, @PathVariable("idUser") String idUser) {
+            sparepartHashSet = new HashSet<>();
             initListSparepartsByArticle(search);
-
-        } catch (IOException e){e.printStackTrace();}
-        return sparepartHashSetByArticle;
+        return sparepartHashSet;
     }
 
     @RequestMapping(value = "/article/{search}/analogs")
     public HashSet<SparepartEntity> getSparepartsByArticleWithAnalogs(@PathVariable("search") String search, @PathVariable("idUser") String idUser){
-      try {
-          sparepartHashSetByArticle = new HashSet<>();
+          sparepartHashSet = new HashSet<>();
           initListSparepartsByArticleAnalogs(search);
-      } catch (IOException e){e.printStackTrace();}
-      return sparepartHashSetByArticle;
+      return sparepartHashSet;
     }
 
     @RequestMapping(value = "/text/{search}")
     public HashSet<SparepartEntity> getSparepartsByText(@PathVariable("search") String search, @PathVariable("idUser") String idUser) {
-        try {
-            motorland = new parsMotorland();
-            sparepartHashSetByText = new HashSet<>();
+          //  sparepartHashSetByText = new HashSet<>();
             initListSparepartsByText(search);
-        } catch (IllegalAccessException | IOException | InstantiationException e) {
-            e.printStackTrace();
-        }
-
 //        UserRequestsEntity zxc = new UserRequestsEntity();
 //        UserEntity user = new UserEntity();
 //        user.setLoginIdUser("312");
@@ -127,6 +172,6 @@ class PartsController {
 //            System.out.println(" Лимит запросов превышен");
 //            return null;
 //        }
-        return sparepartHashSetByText;
+        return new HashSet<>();
     }
 }

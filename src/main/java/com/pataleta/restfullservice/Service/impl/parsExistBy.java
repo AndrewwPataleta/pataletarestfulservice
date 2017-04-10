@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Objects;
+import java.util.Set;
 
 
 @Service
@@ -18,6 +20,7 @@ public class parsExistBy implements parsWeb {
 
     private HashSet<SparepartEntity> listOfPartsByArticle;
     private String phone = "";
+    private Set<String> listOfBrands = new HashSet<>();
 
     @Override
     public HashSet<SparepartEntity> getListByTextSearch(String searchString) throws IOException {
@@ -54,9 +57,46 @@ public class parsExistBy implements parsWeb {
         return null;
     }
 
+    private void initListOfBrands(Elements brandsElem){
+        System.out.println(" tyt ");
+        for (Element brand: brandsElem) {
+            if(brand.select("li").select("a").select("span").select("b").text() != null && !Objects.equals(brand.select("li").select("a").select("span").select("b").text(), ""))
+                listOfBrands.add(brand.select("li").select("a").select("span").select("b").text());
+        }
+    }
+
+    @Override
+    public Set<String> getListOfBrands(String article) {
+        Elements brandsElem = getEveryoneBrandByArticle(article);
+      initListOfBrands(brandsElem);
+      return listOfBrands;
+    }
+
+    private Elements getEveryoneBrandByArticle(String article)  {
+        Elements itemsInTable = new Elements();
+        try {
+            Document mlAutoDoc = Jsoup.connect("http://www.exist.by/price.aspx?pcode="+article+"").timeout(5000).get();
+            Element mainTable = mlAutoDoc.getElementById("priceBody");
+            itemsInTable = mainTable.getElementsByClass("catalogs").select("li");
+        }catch (NullPointerException | IOException e){
+            System.out.println(e.toString());
+        }
+        return itemsInTable;
+    }
+
     @Override
     public HashSet<SparepartEntity> getListByCode(String code) throws IOException {
         return new HashSet<>();
+    }
+
+    @Override
+    public HashSet<SparepartEntity> getListByArticleWithAnalogs(String article) throws IOException {
+        return new HashSet<>();
+    }
+
+    @Override
+    public HashSet<SparepartEntity> getListByArticleWithAnalogs(String article, String brand) throws IOException {
+        return null;
     }
 
 
