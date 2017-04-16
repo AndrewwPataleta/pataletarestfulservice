@@ -24,7 +24,7 @@ class PartsController {
     public PartsController()  {
         javaClasses = new ArrayList<>();
         try {
-            Scanner in = new Scanner(new File("/home/andrew/programs/pataletarestfulservice/src/main/resources/public/files/classesForPars"));
+            Scanner in = new Scanner(new File("D:\\softForDevelopment\\pataletaProjects\\pataletarestfulservice\\src\\main\\resources\\public\\files\\classesForPars"));
             while (in.hasNext()) {
                 Object object = Class.forName("com.pataleta.restfullservice.Service.impl." + in.next() + "").newInstance();
                 parsWeb web = (parsWeb) object;
@@ -54,6 +54,7 @@ class PartsController {
 //        sparepartHashSetByText.addAll(parsExistBy.class.newInstance().getListOfPartsByCode("16400-9F910"));
 
     private void initListSparepartsByArticleAndBrandWithoutAnalogs(String article,String brand)  {
+        sparepartHashSet = new HashSet<>();
         for (parsWeb javaClass:javaClasses) {
             try {
                 sparepartHashSet.addAll(javaClass.getListByArticle(article, brand));
@@ -70,6 +71,7 @@ class PartsController {
     }
 
     private void initListSparepartsByArticleWithBrandAnalogs(String article,String brand)  {
+        sparepartHashSet = new HashSet<>();
         for (parsWeb javaClass:javaClasses) {
             try {
                 sparepartHashSet.addAll(javaClass.getListByArticleWithAnalogs(article, brand));
@@ -110,7 +112,7 @@ class PartsController {
     }
 
 
-    @RequestMapping(value = "/brands/{article}")
+    @RequestMapping(value = "/brands/{article}", method = RequestMethod.GET )
     public Set<String> getListOfBrands(@PathVariable("article") String article, @PathVariable("idUser") String idUser){
         initListOfBrands(article);
         System.out.println(listOfBrands.size());
@@ -132,7 +134,7 @@ class PartsController {
     public HashSet<SparepartEntity> getSparepartsByArticleAndBrandWithAnalogs(@PathVariable("search") String search, @PathVariable("idUser") String idUser,@PathVariable("brand") String brandArticle){
         try {
             sparepartHashSet = new HashSet<>();
-            initListSparepartsByArticleAndBrandWithoutAnalogs(search,brandArticle);
+            initListSparepartsByArticleWithBrandAnalogs(search,brandArticle);
         }catch (Exception e){
             e.printStackTrace();
         }
