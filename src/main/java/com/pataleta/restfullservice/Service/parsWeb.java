@@ -14,15 +14,13 @@ public interface parsWeb {
 
      HashSet<SparepartEntity> getListByTextSearch(String searchString) throws IOException;
 
-     HashSet<SparepartEntity> getListByArticle(String article) throws IOException ;
+     HashSet<SparepartEntity> initListOfSparepartsByUniqueArticleWithoutAnalogs(String article) throws IOException ;
 
-     HashSet<SparepartEntity> getListByArticle(String article, String brand) throws IOException ;
+     HashSet<SparepartEntity> getListByArticleAndBrandWithoutAnalogs(String article, String brand) throws IOException ;
 
      Set<String> getListOfBrands(String article);
 
-     HashSet<SparepartEntity> getListByCode(String code) throws IOException;
+     HashSet<SparepartEntity> initListOfSparepartsByUniqueArticleWithAnalogs(String article) throws IOException;
 
-     HashSet<SparepartEntity> getListByArticleWithAnalogs(String article) throws IOException;
-
-     HashSet<SparepartEntity> getListByArticleWithAnalogs(String article, String brand) throws IOException;
+     HashSet<SparepartEntity> getListByArticleAndBrandWithAnalogs(String article, String brand) throws IOException;
 }

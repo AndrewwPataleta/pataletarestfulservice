@@ -57,7 +57,7 @@ class PartsController {
         sparepartHashSet = new HashSet<>();
         for (parsWeb javaClass:javaClasses) {
             try {
-                sparepartHashSet.addAll(javaClass.getListByArticle(article, brand));
+                sparepartHashSet.addAll(javaClass.getListByArticleAndBrandWithoutAnalogs(article, brand));
             }catch (IOException e){
                 System.out.println(" initListSparepartsByArticleAndBrandWithoutAnalogs "+e.toString());
             }
@@ -65,6 +65,7 @@ class PartsController {
     }
 
     private void initListOfBrands(String article){
+        listOfBrands = new HashSet<>();
         for (parsWeb javaClass:javaClasses) {
                 listOfBrands.addAll(javaClass.getListOfBrands(article));
         }
@@ -74,27 +75,27 @@ class PartsController {
         sparepartHashSet = new HashSet<>();
         for (parsWeb javaClass:javaClasses) {
             try {
-                sparepartHashSet.addAll(javaClass.getListByArticleWithAnalogs(article, brand));
+                sparepartHashSet.addAll(javaClass.getListByArticleAndBrandWithAnalogs(article, brand));
             }catch (IOException e){
                 System.out.print("initListSparepartsByArticleWithBrandAnalogs "+e.toString());
             }
         }
     }
 
-    private void initListSparepartsByArticleAnalogs(String article) {
+    private void initListSparepartsByUniqueArticleWithAnalogs(String article) {
         for (parsWeb javaClass:javaClasses) {
             try {
-                sparepartHashSet.addAll(javaClass.getListByArticleWithAnalogs(article));
+                sparepartHashSet.addAll(javaClass.initListOfSparepartsByUniqueArticleWithAnalogs(article));
             }catch (IOException e){
                 System.out.println("initListSparepartsByArticleAnalogs "+e.toString());
             }
         }
     }
 
-    private void initListSparepartsByArticle(String article) {
+    private void initListSparepartsByUniqueArticleWithoutAnalogs(String article) {
         for (parsWeb javaClass:javaClasses) {
             try {
-            sparepartHashSet.addAll(javaClass.getListByArticle(article));}
+            sparepartHashSet.addAll(javaClass.initListOfSparepartsByUniqueArticleWithoutAnalogs(article));}
             catch (IOException e){
                 System.out.println(e.toString());
             }
@@ -122,7 +123,6 @@ class PartsController {
     @RequestMapping(value = "/article/{search}/{brand}")
     public HashSet<SparepartEntity> getSparepartsByArticleAndBrandWithoutAnalogs(@PathVariable("search") String search, @PathVariable("idUser") String idUser,@PathVariable("brand") String brandArticle){
         try {
-            sparepartHashSet = new HashSet<>();
             initListSparepartsByArticleAndBrandWithoutAnalogs(search,brandArticle);
         }catch (Exception e){
             e.printStackTrace();
@@ -130,10 +130,9 @@ class PartsController {
         return sparepartHashSet;
     }
 
-    @RequestMapping(value = "/article/{search}/analogs/{brand}")
+    @RequestMapping(value = "/article/{search}/{brand}/analogs")
     public HashSet<SparepartEntity> getSparepartsByArticleAndBrandWithAnalogs(@PathVariable("search") String search, @PathVariable("idUser") String idUser,@PathVariable("brand") String brandArticle){
         try {
-            sparepartHashSet = new HashSet<>();
             initListSparepartsByArticleWithBrandAnalogs(search,brandArticle);
         }catch (Exception e){
             e.printStackTrace();
@@ -144,36 +143,20 @@ class PartsController {
     @RequestMapping(value = "/article/{search}", method = RequestMethod.GET)
     public HashSet<SparepartEntity> getSparepartsByArticleWithoutAnalogs(@PathVariable("search") String search, @PathVariable("idUser") String idUser) {
             sparepartHashSet = new HashSet<>();
-            initListSparepartsByArticle(search);
+        initListSparepartsByUniqueArticleWithoutAnalogs(search);
         return sparepartHashSet;
     }
 
     @RequestMapping(value = "/article/{search}/analogs")
     public HashSet<SparepartEntity> getSparepartsByArticleWithAnalogs(@PathVariable("search") String search, @PathVariable("idUser") String idUser){
           sparepartHashSet = new HashSet<>();
-          initListSparepartsByArticleAnalogs(search);
+        initListSparepartsByUniqueArticleWithAnalogs(search);
       return sparepartHashSet;
     }
 
     @RequestMapping(value = "/text/{search}")
     public HashSet<SparepartEntity> getSparepartsByText(@PathVariable("search") String search, @PathVariable("idUser") String idUser) {
-          //  sparepartHashSetByText = new HashSet<>();
             initListSparepartsByText(search);
-//        UserRequestsEntity zxc = new UserRequestsEntity();
-//        UserEntity user = new UserEntity();
-//        user.setLoginIdUser("312");
-//        zxc.setUserEntity(user);
-//        Session session = HibernateSessionFactory.getSessionFactory().openSession();
-//        session.beginTransaction();
-//        session.save(zxc);
-//        session.getTransaction().commit();
-//        session.close();
-
-//        if(!mayDoRequest())
-//        {
-//            System.out.println(" Лимит запросов превышен");
-//            return null;
-//        }
         return new HashSet<>();
     }
 }

@@ -39,7 +39,6 @@ public class parsAmrBy implements parsWeb {
         private Elements getItemsInTableByUrlWithoutAnalogs(String url){
             if(url.equals(null)|| Objects.equals(url.trim(), ""))
                 return new Elements();
-            System.out.print(" ССЫЛКА В МЕТОДЕ: "+url);
             Elements items = new Elements();
             try {
                 Element mainTable = mainDiv(url);
@@ -82,6 +81,7 @@ public class parsAmrBy implements parsWeb {
                     } catch (Exception e) {
                         System.out.println(e.toString() );
                     }
+
                 }
             }catch (Exception e){
                 e.printStackTrace();
@@ -101,52 +101,38 @@ public class parsAmrBy implements parsWeb {
             return itemsInTable;
         }
 
-        @Override
-        public HashSet<SparepartEntity> getListByArticle(String article)  {
+
+        public HashSet<SparepartEntity> initListOfSparepartsByUniqueArticleWithoutAnalogs(String article){
+            Elements itemsInTable;
             try {
-                Elements itemsInTable = getEveryoneBrandByArticle(article);
-                for (Element singleItem : itemsInTable) {
-                    try {
-                        Element forHref = singleItem.select("td").select("strong").select("a").first();
-                        String href = forHref.attr("href");
-                        System.out.println(href);
-                        Elements itemsWithoutAnalogs = getItemsInTableByUrlWithoutAnalogs(href);
-                        initListByElements(itemsWithoutAnalogs);
-                    }catch (IOException e){
-                        System.out.println(e.toString());
-                    }
-                }
-            } catch (NullPointerException e){
-                System.out.println(" Ничего не найдено ");
+                Document listElementsByArticle = Jsoup.connect("http://amr.by/search/number/?article=F2AZ4635C&brand=Ford&ajax=true").timeout(5000).get();
+                Element mainDiv = listElementsByArticle.getElementById("ajax_analogs");
+                itemsInTable = mainDiv.select("table.details-list.filterResultTable.xsmalls").first().select("tbody").select("tr");
+                initListByElements(itemsInTable);
+            } catch (IOException e) {
+                e.printStackTrace();
             }
             return listOfParts;
         }
 
-        @Override
-        public HashSet<SparepartEntity> getListByArticleWithAnalogs(String article) {
-            try {
-                Elements itemsInTable = getEveryoneBrandByArticle(article);
-                for (Element singleItem : itemsInTable) {
-                    try {
-                        Element forHref = singleItem.select("td").select("strong").select("a").first();
-                        String href = forHref.attr("href");
-                        Elements itemsWithoutAnalogs = getItemsInTableByUrlWithAnalogs(href);
-                        initListByElements(itemsWithoutAnalogs);
-                    }catch (IOException e){
-                        System.out.println(e.toString());
-                    }
-                }
-            } catch (NullPointerException e){
-                System.out.println(" Ничего не найдено ");
-            }
-            for (SparepartEntity item: listOfParts) {
-                System.out.println(item);
-            }
-            return listOfParts;
+    @Override
+    public HashSet<SparepartEntity> initListOfSparepartsByUniqueArticleWithAnalogs(String article) throws IOException {
+        Elements itemsInTable;
+        try {
+            Document listElementsByArticle = Jsoup.connect("http://amr.by/search/number/?article="+article+"&brand=&ajax=true").timeout(4000).get();
+            System.out.print(listElementsByArticle);
+            Element mainDiv = listElementsByArticle.getElementById("ajax_analogs");
+            itemsInTable = mainDiv.select("table.details-list.filterResultTable.xsmalls").select("tbody").select("tr");
+            System.out.println(mainDiv  );
+            initListByElements(itemsInTable);
+        } catch (IOException e) {
+            e.printStackTrace();
         }
+        return listOfParts;
+    }
 
         @Override
-        public HashSet<SparepartEntity> getListByArticle(String article, String brand) throws IOException {
+        public HashSet<SparepartEntity> getListByArticleAndBrandWithoutAnalogs(String article, String brand) throws IOException {
             try {
                 Elements brands = getEveryoneBrandByArticle(article);
                 for (Element singleItem : brands) {
@@ -182,8 +168,10 @@ public class parsAmrBy implements parsWeb {
             return brands;
         }
 
+
+
     @Override
-        public HashSet<SparepartEntity> getListByArticleWithAnalogs(String article, String brand) throws IOException {
+        public HashSet<SparepartEntity> getListByArticleAndBrandWithAnalogs(String article, String brand) throws IOException {
             try {
                 Elements brands = getEveryoneBrandByArticle(article);
                 for (Element singleItem : brands) {
@@ -204,10 +192,5 @@ public class parsAmrBy implements parsWeb {
                 System.out.println(item);
             }
             return listOfParts;
-        }
-
-        @Override
-        public HashSet<SparepartEntity> getListByCode(String code) throws IOException {
-            return null;
         }
     }
